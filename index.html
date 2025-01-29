@@ -163,6 +163,7 @@
     <div id="game">
       <div id="axolotl"></div>
       <div id="score">0</div>
+      <audio id="jumpSound" src="sound/jump.mp3"></audio>
       <div id="game-over">
         <h2>¡Game Over!</h2>
         <p>Puntuación: <span id="final-score">0</span></p>
@@ -194,6 +195,7 @@
     const instructions = document.getElementById("instructions");
     const specialMessage = document.getElementById("special-message");
     const specialScoreDisplay = document.getElementById("special-score");
+    const jumpSound = document.getElementById("jumpSound");
 
     let axolotlTop = 250;
     let gravity = 0.4;
@@ -246,6 +248,10 @@
       }
 
       velocity = jumpStrength;
+
+      // Reproduce el sonido de salto
+      jumpSound.currentTime = 0; // Reinicia el sonido si ya estaba reproduciéndose
+      jumpSound.play();
 
       flapWings()
     }
