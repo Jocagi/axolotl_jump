@@ -197,7 +197,10 @@
     const specialScoreDisplay = document.getElementById("special-score");
     const jumpSound = document.getElementById("jumpSound");
 
-    let axolotlTop = 250;
+    // Bajar el volumen
+    jumpSound.volume = 0.05; // 0.5 = 50% del volumen
+
+    let axolotlTop = 225;
     let gravity = 0.4;
     let jumpStrength = -8;
     let velocity = 0;
