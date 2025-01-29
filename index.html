@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="ico/favicon.ico" type="image/x-icon">
+  <title>Flappy axolotl</title>
+  <style>
+    @font-face {
+      font-family: '04B_30__';
+      src: url('fonts/04B_30__.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    body {
+      margin: 0;
+      overflow: hidden;
+      display: flex;
+      justify-content: center; 
+      align-items: center;
+      height: 100vh;
+      background-color: black;
+    }
+    #game-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100vw;
+      height: 100vh;
+      background-color: black;
+    }
+    #game {
+      position: relative;
+      width: 400px;
+      height: 600px;
+      background-color: #70c5ce;
+      background-image: url('assets/Fondo_Marino.png');
+      background-size: contain;
+      border: 2px solid #000;
+      overflow: hidden;
+    }
+    #axolotl {
+      position: absolute;
+      top: 50%;
+      left: 50px;
+      width: 100px;
+      height: 85px;
+      background-image: url('assets/Ajolote1.svg');
+      background-size: contain;
+      background-repeat: no-repeat;
+      transition: transform 0.2s ease;
+      /*
+      outline: 4px solid #ff00ff; // Contorno de color magenta
+      outline-offset: 4px; // Espacio entre el contorno y el elemento
+      */
+    }
+    .pipe {
+      position: absolute;
+      width: 60px; /* Ancho fijo del tubo */
+      /*background-color: green;*/ /* Color de fondo por si la imagen no cubre completamente */
+      background-image: url('assets/Obstaculo_Marino.svg');
+      background-size: 100% auto; /* Estirar horizontalmente y repetir verticalmente */
+      background-repeat: repeat-y; /* Repetir verticalmente */
+    }
+    #score {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 24px;
+      color: white;
+      font-family: '04B_30__', sans-serif;
+      z-index: 10;
+    }
+    #game-over {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      display: none;
+      font-family: '04B_30__', sans-serif;
+      z-index: 100;
+    }
+    #game-over button {  
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: '04B_30__', sans-serif;
+    }
+    #game-over button:hover {
+      background-color: #45a049;
+    }
+    #special-message button {  
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: '04B_30__', sans-serif;
+    }
+    #special-message button:hover {
+      background-color: #45a049;
+    }
+    #special-message a {
+      background-color: #d32f2f;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      margin-top: 15px;
+      cursor: pointer;
+      font-family: '04B_30__', sans-serif;
+      text-decoration: none;
+    }
+    #instructions {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      font-family: '04B_30__', sans-serif;
+      z-index: 100;
+    }
+    #instructions p {
+      margin: 0;
+      font-size: 18px;
+    }
+    #special-message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      font-family: '04B_30__', sans-serif;
+      z-index: 100;
+      display: none;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+  <div id="game-container">
+    <div id="game">
+      <div id="axolotl"></div>
+      <div id="score">0</div>
+      <div id="game-over">
+        <h2>¡Game Over!</h2>
+        <p>Puntuación: <span id="final-score">0</span></p>
+        <button onclick="restartGame()">Reiniciar</button>
+      </div>
+      <div id="instructions">
+        <p>¡Haz click o presiona espacio para comenzar!</p>
+        <br>
+        <p>Consigue al menos 12 puntos para ganar. ¡Suerte!</p>
+      </div>
+      <div id="special-message">
+        <h2>¡Felicidades!</h2>
+        <p>Has alcanzado más de <span id="special-score">12</span> puntos. ¡Sigue así!</p>
+        <p>Puntuación: <span id="final-score-1">0</span></p>
+        <button onclick="restartGame()">Reiniciar</button>
+        <br><br>
+        <a href="valentine.html" target="_blank">Click Aquí</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const game = document.getElementById("game");
+    const axolotl = document.getElementById("axolotl");
+    const scoreDisplay = document.getElementById("score");
+    const gameOverScreen = document.getElementById("game-over");
+    const finalScoreDisplay = document.getElementById("final-score");
+    const finalScoreDisplay1 = document.getElementById("final-score-1");
+    const instructions = document.getElementById("instructions");
+    const specialMessage = document.getElementById("special-message");
+    const specialScoreDisplay = document.getElementById("special-score");
+
+    let axolotlTop = 250;
+    let gravity = 0.4;
+    let jumpStrength = -8;
+    let velocity = 0;
+    let gameInterval;
+    let pipeInterval;
+    let score = 0;
+    let isDead = false;
+    let isDisabled = false;
+    let gameStarted = false;
+    let confettiDisplayed = false;
+
+    const collisionMarginX = -5; // Margen horizontal
+    const collisionMarginYTop = -30; // Margen vertical
+    const collisionMarginYButtom = -7; // Margen vertical
+
+    const specialScore = 12;
+
+    // Imágenes para las animaciones
+    const animationImages = ['assets/Ajolote1.svg', 'assets/Ajolote2.svg']; // Dos imágenes para el aleteo
+    let currentBirdImage = 0;
+
+    function moveaxolotl() {
+      if (isDead || !gameStarted) return;
+
+      velocity += gravity;
+      axolotlTop += velocity;
+      axolotl.style.top = axolotlTop + "px";
+
+      if (axolotlTop - 35 >= game.clientHeight - axolotl.clientHeight 
+            || axolotlTop + 35 <= 0) {
+        endGame();
+      }
+    }
+
+    // Animación de aleteo
+    function flapWings() {
+      currentBirdImage = (currentBirdImage + 1) % animationImages.length;
+      axolotl.style.backgroundImage = `url('${animationImages[currentBirdImage]}')`;
+    }
+
+    function jump() {
+      if (isDead) return;
+
+      if (!gameStarted) {
+        gameStarted = true;
+        instructions.style.display = "none";
+        startGame();
+      }
+
+      velocity = jumpStrength;
+
+      flapWings()
+    }
+
+    function createPipe() {
+      const pipeGap = 200;
+      const pipeHeight = Math.random() * (game.clientHeight - pipeGap);
+      const topPipe = document.createElement("div");
+      const bottomPipe = document.createElement("div");
+
+      topPipe.classList.add("pipe");
+      bottomPipe.classList.add("pipe");
+
+      topPipe.style.height = pipeHeight + "px";
+      topPipe.style.top = "0";
+      topPipe.style.left = game.clientWidth + "px";
+
+      bottomPipe.style.height = (game.clientHeight - pipeHeight - pipeGap) + "px";
+      bottomPipe.style.bottom = "0";
+      bottomPipe.style.left = game.clientWidth + "px";
+
+      game.appendChild(topPipe);
+      game.appendChild(bottomPipe);
+
+      let pipeLeft = game.clientWidth;
+      const pipeMoveInterval = setInterval(() => {
+        if (isDead || !gameStarted) return;
+
+        pipeLeft -= 2;
+        topPipe.style.left = pipeLeft + "px";
+        bottomPipe.style.left = pipeLeft + "px";
+
+        if (pipeLeft <= -60) {
+          clearInterval(pipeMoveInterval);
+          game.removeChild(topPipe);
+          game.removeChild(bottomPipe);
+        }
+
+        const axolotlBottom = axolotlTop + 50;
+        const axolotlRight = 90;
+
+        if (
+          pipeLeft <= axolotlRight + collisionMarginX && 
+          pipeLeft + 55 >= 50 - collisionMarginX &&
+          (axolotlTop - collisionMarginYTop <= pipeHeight || 
+          axolotlBottom + collisionMarginYButtom >= pipeHeight + pipeGap)
+        ) {
+          endGame();
+        }
+
+        if (pipeLeft === 50) {
+          score++;
+          scoreDisplay.textContent = score;
+        }
+
+        // Efecto de confeti al alcanzar ciertos puntos
+        if (score === specialScore && !confettiDisplayed) {
+            confetti({
+              particleCount: 30,
+              spread: 25,
+              origin: { y: 0.6 }
+            });
+            confettiDisplayed = true;
+          }
+
+      }, 20);
+    }
+
+    function die() {
+      isDead = true;
+      isDisabled = true;
+      axolotl.style.transform = "rotate(90deg)";
+      axolotl.style.transition = "transform 0.2s ease";
+      
+      // Habilitar el botón después de 1 segundo
+      setTimeout(() => {
+        isDisabled = false;
+        console.log("Botón habilitado nuevamente.");
+      }, 1000); // 1000 ms = 1 segundo
+    }
+
+    function showGameOver() {
+      finalScoreDisplay.textContent = score;
+      finalScoreDisplay1.textContent = score;
+ 
+      if (score >= specialScore) {
+        specialScoreDisplay.textContent = specialScore;
+        specialMessage.style.display = "block";
+        confetti({
+          particleCount: 200,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+      }
+      else {
+        gameOverScreen.style.display = "block";
+      }
+    }
+
+    function endGame() {
+      die();
+      clearInterval(gameInterval);
+      clearInterval(pipeInterval);
+      setTimeout(showGameOver, 500);
+    }
+
+    function restartGame() {
+      window.location.reload();
+    }
+
+    function startGame() {
+      gameInterval = setInterval(moveaxolotl, 20);
+      pipeInterval = setInterval(createPipe, 2000);
+    }
+
+    document.addEventListener("click", jump);
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "Space") {
+        if (isDead && !isDisabled) {
+          restartGame();
+        } else {
+          jump();
+        }
+      }
+    });
+  </script>
+</body>
+</html>

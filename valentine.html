@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="ico/favicon.ico" type="image/x-icon">
+    <title>¿Quieres ser mi Valentín?</title>
+    <style>
+        @font-face {
+        font-family: '04B_30__';
+        src: url('fonts/04B_30__.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #ffebee;
+            font-family: '04B_30__', sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: #d32f2f;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            font-family: '04B_30__', sans-serif;
+            color: white;
+            background-color: #d32f2f;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #b71c1c;
+        }
+
+        .heart {
+            position: absolute;
+            top: -50px;
+            color: #d32f2f;
+            font-size: 2rem;
+            animation: fall 5s linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-10vh) rotate(0deg);
+            }
+            100% {
+                transform: translateY(110vh) rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>¿Quieres ser mi Valentín?</h1>
+        <button onclick="mostrarMensaje()">¡Haz clic aquí!</button>
+    </div>
+
+    <script>
+        function mostrarMensaje() {
+            alert('¡Gracias por aceptar ser mi Valentín! Te quiero ❤️');
+        }
+
+        function crearCorazon() {
+            const heart = document.createElement('div');
+            heart.innerHTML = '❤️';
+            heart.classList.add('heart');
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = Math.random() * 3 + 2 + 's';
+            document.body.appendChild(heart);
+
+            setTimeout(() => {
+                heart.remove();
+            }, 5000);
+        }
+
+        setInterval(crearCorazon, 300);
+    </script>
+</body>
+</html>
